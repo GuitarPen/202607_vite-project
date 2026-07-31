@@ -6,7 +6,7 @@ function Layout() {
       <NavLink to="/">Home</NavLink>｜
       <NavLink to="/products">Products</NavLink>｜
       <NavLink to="/cart">Cart</NavLink>｜
-      <NavLink to="/admin/login">Login</NavLink>
+      <NavLink to="/admin">進入後台</NavLink>
     </nav>
     <hr />
     <main>

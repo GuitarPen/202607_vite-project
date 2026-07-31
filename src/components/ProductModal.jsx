@@ -35,21 +35,27 @@ function ProductModal({ isOpen, onClose, mode, product, onSuccess }) {
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
+            const submitData = {
+                ...formData,
+                origin_price: Number(formData.origin_price),
+                price: Number(formData.price),
+            }
+
             if (mode === 'create') {
                 await axios.post(
                     `${VITE_API_URL}/v2/api/${VITE_API_PATH}/admin/product`,
-                    { data: formData }
+                    { data: submitData }  // ← 改成 submitData
                 )
                 alert('新增成功')
             } else {
                 await axios.put(
                     `${VITE_API_URL}/v2/api/${VITE_API_PATH}/admin/product/${product.id}`,
-                    { data: formData }
+                    { data: submitData }  // ← 改成 submitData
                 )
                 alert('修改成功')
             }
-            onSuccess()  // 重新撈商品列表
-            onClose()    // 關閉 Modal
+            onSuccess()
+            onClose()
         } catch (error) {
             alert(mode === 'create' ? '新增失敗' : '修改失敗')
         }
@@ -142,6 +148,18 @@ function ProductModal({ isOpen, onClose, mode, product, onSuccess }) {
                             onChange={handleChange}
                             className="w-full border p-2 rounded"
                         />
+                        {/* 圖片預覽 */}
+                        <div className="mt-2 border rounded overflow-hidden h-48 flex items-center justify-center bg-gray-50">
+                            {formData.imageUrl ? (
+                                <img
+                                    src={formData.imageUrl}
+                                    alt="商品預覽"
+                                    className="h-full w-full object-contain"
+                                />
+                            ) : (
+                                <p className="text-gray-400 text-sm">輸入圖片網址後顯示預覽</p>
+                            )}
+                        </div>
                     </div>
                     <div className="flex items-center gap-2">
                         <input
