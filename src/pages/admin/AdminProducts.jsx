@@ -22,9 +22,11 @@ function AdminProducts() {
             const res = await axios.get(
                 `${VITE_API_URL}/v2/api/${VITE_API_PATH}/admin/products`
             )
-            setProducts(res.data.products)
+            setProducts(res.data.products || []) // ← 加 || [] 保護
+            console.log('取得商品列表成功', res.data.products)
         } catch (error) {
             alert('取得商品列表失敗')
+            console.log('取得商品列表失敗')
         }
     }
 

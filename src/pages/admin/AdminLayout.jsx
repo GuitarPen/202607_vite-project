@@ -13,6 +13,14 @@ function AdminLayout() {
             /(?:(?:^|.*;\s*)hexToken\s*=\s*([^;]*).*$)|^.*$/,
             '$1'
         )
+        console.log('Token:', token)  // ← 加這行
+
+        // Token 是空的 → 直接跳登入頁
+        if (!token) {
+            alert('請先登入')
+            navigate('/admin/AdminLogin')
+            return
+        }
 
         // 設定 axios 預設帶上 Token
         axios.defaults.headers.common['Authorization'] = token
@@ -21,11 +29,13 @@ function AdminLayout() {
         const checkLogin = async () => {
             try {
                 await axios.post(`${VITE_API_URL}/v2/api/user/check`)
+                console.log('驗證成功')
                 // 驗證成功 → 留在後台，不做任何事
             } catch (error) {
                 // 驗證失敗 → 跳回登入頁
+                console.log('驗證失敗', error)  // ← 加這行
                 alert('請先登入')
-                navigate('/admin/login')
+                navigate('/admin/AdminLogin')
             }
         }
 
