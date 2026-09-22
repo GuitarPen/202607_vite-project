@@ -1,13 +1,16 @@
-function PersonIcon ({ className = 'h-[22px] w-[22px]' }) {
+function PersonIcon ({ className = 'h-4.5 w-4.5' }) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
+      viewBox='0 0 512 512'
       fill='currentColor'
       className={className}
-      viewBox='0 0 16 16'
-      aria-hidden='true'
+      aria-hidden="true"
     >
-      <path d='M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6' />
+      <g>
+        <circle cx='256' cy='128' r='128' />
+        <path d='M256,298.667c-105.99,0.118-191.882,86.01-192,192C64,502.449,73.551,512,85.333,512h341.333   c11.782,0,21.333-9.551,21.333-21.333C447.882,384.677,361.99,298.784,256,298.667z' />
+      </g>
     </svg>
   )
 }

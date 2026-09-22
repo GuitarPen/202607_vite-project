@@ -1,9 +1,12 @@
+/* cSpell:words srgb rgba */
 @import 'tailwindcss';
 
+/* 全站設計 tokens：統一管理品牌色彩與字體。 */
 @theme {
   --color-brand: #4a7c59;
-  --color-brand-grey: #6F8074;
+  --color-brand-grey: #6f8074;
   --color-sand: #e8e0d6;
+  --color-sand-dark: #c3b39e;
   --color-paper: #f7f3ee;
   --color-ink: #3d3d3d;
   --color-accent: #c17a3a;
@@ -11,8 +14,11 @@
   --font-sans: 'Noto Sans TC', system-ui, sans-serif;
   --font-moderustic: 'Moderustic', sans-serif;
   --font-playfair: 'Playfair Display SC', serif;
+
+  --shadow-card: 8px 8px 30px 4px rgb(0 0 0 / 15%);
 }
 
+/* body 等全站基礎樣式 */
 @layer base {
   body {
     margin: 0;
@@ -20,15 +26,30 @@
     color: var(--color-ink);
     background-color: var(--color-paper);
   }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 4px;
+  }
 }
 
+/* ====================
+    共用樣式
+   ==================== */
 @layer components {
-  /* 網站容器 */
+  /* 網站容器：限制內容寬度並依螢幕尺寸調整內距。 */
   .site-container {
+    --container-max: 1280px;
+
     width: 100%;
-    max-width: 1280px;
+    max-width: var(--container-max);
     margin-inline: auto;
     padding-inline: 1rem;
+  }
+
+  /* 較窄的容器 */
+  .site-container--narrow {
+    --container-max: 1000px;
   }
 
   @media (min-width: 48rem) {
@@ -37,7 +58,188 @@
     }
   }
 
-  /* 購物服務特色背景 */
+  /* 表單input */
+  .form-input {
+    width: 100%;
+    min-width: 0;
+    padding: 0.5rem 1rem;
+
+    border: 1px solid var(--color-brand);
+    border-radius: 0.25rem;
+    background-color: var(--color-paper);
+
+    font: inherit;
+    color: var(--color-ink);
+
+    transition: border-color 0.2s, background-color 0.2s;
+
+    &::placeholder {
+      color: var(--color-ink);
+      opacity: 0.5;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-brand);
+      outline-offset: 2px;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &[aria-invalid='true'] {
+      border-color: #b91c1c;
+    }
+
+    &[aria-invalid='true']:focus-visible {
+      outline-color: #b91c1c;
+    }
+  }
+}
+
+/* ====================
+    Header
+   ==================== */
+@layer components {
+    /* 所有頁面共用的定位 */
+  .site-header {
+    position: fixed;
+    inset-inline: 0;
+    top: 0;
+    z-index: 50;
+
+    background-color: transparent;
+    box-shadow: none;
+
+    transition: background-color 0.3s ease, color 0.3s ease,
+      box-shadow 0.3s ease;
+  }
+
+  /* 首頁 header */
+  .header-home {
+    --header-hover-color: white;
+    --header-hover-bg: rgb(0 0 0 / 20%);
+
+    color: white;
+  }
+
+  /* 內頁 header，或首頁往下捲後 */
+  .header-inner {
+    --header-hover-color: var(--color-accent);
+    --header-hover-bg: rgb(74 124 89 / 10%);
+
+    color: var(--color-brand);
+  }
+
+  /* 捲動後的浮起效果，放在上述規則後面 */
+  .header-scrolled {
+    background-color: color-mix(in srgb, var(--color-paper) 90%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 20px rgb(0 0 0 / 8%);
+  }
+
+  /* Logo 視覺上稍微縮小，不影響 header 高度 */
+  .header-logo {
+    transform: scale(1);
+    transform-origin: left center;
+    transition: transform 0.3s ease;
+  }
+
+  .header-scrolled .header-logo {
+    transform: scale(0.9);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-header,
+    .header-logo {
+      transition: none;
+    }
+  }
+
+  /* 購物車、會員入口共用樣式 */
+  .header-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    color: inherit;
+
+    transition: color 0.2s, background-color 0.2s;
+
+    &:hover {
+      color: var(--header-hover-color);
+      background-color: var(--header-hover-bg);
+    }
+
+    &:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      &:active {
+        transform: scale(0.95);
+      }
+    }
+  }
+
+  /* 導航連結 */
+  .nav-link {
+    position: relative;
+    display: inline-block;
+    padding-block: 0.5rem;
+    color: inherit;
+    transition: color 0.2s;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset-inline: 0;
+      bottom: 0;
+      height: 2px;
+      background-color: currentColor;
+
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.2s ease;
+    }
+
+    &:hover,
+    &[aria-current='page'] {
+      color: var(--header-hover-color);
+    }
+
+    &:hover::after,
+    &[aria-current='page']::after {
+      transform: scaleX(1);
+    }
+
+    &:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 4px;
+      border-radius: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+
+      &::after {
+        transition: none;
+      }
+    }
+  }
+}
+
+/* ====================
+    Footer 與服務區塊
+   ==================== */
+@layer components {
+    /* 購物服務特色背景：使用低透明度圖片避免干擾內容閱讀。 */
   .service-benefits-bg {
     position: relative;
     isolation: isolate;
@@ -56,44 +258,58 @@
     }
   }
 
-  /* 表單input */
-  .form-input {
-    width: 100%;
-    min-width: 0;
-    padding: 0.5rem 1rem;
+  /* 頁尾導航連結 */
+  .footer-nav-link {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    color: inherit;
 
-    border: 1px solid var(--color-brand);
-    border-radius: 0.25rem;
-    background-color: var(--color-paper);
+    transition: color 0.2s ease, transform 0.2s ease;
 
-    font: inherit;
-    color: var(--color-ink);
+    &::before {
+      content: '';
+      position: absolute;
+      left: -12px;
+      width: 6px;
+      height: 2px;
+      background-color: currentColor;
+      opacity: 0;
+      transform: scaleX(0);
+      transform-origin: left;
 
-    transition:
-      border-color 0.2s,
-      background-color 0.2s;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
 
-    &::placeholder {
-      color: var(--color-ink);
-      opacity: 0.5;
+    &:hover,
+    &:focus-visible {
+      color: var(--color-brand);
+      transform: translateX(8px);
+    }
+
+    &:hover::before,
+    &:focus-visible::before {
+      opacity: 1;
+      transform: scaleX(1);
     }
 
     &:focus-visible {
-      outline: 2px solid var(--color-brand);
-      outline-offset: 2px;
+      outline: 2px solid currentColor;
+      outline-offset: 4px;
+      border-radius: 2px;
     }
 
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
 
-    &[aria-invalid="true"] {
-      border-color: #b91c1c;
-    }
+      &:hover,
+      &:focus-visible {
+        transform: none;
+      }
 
-    &[aria-invalid="true"]:focus-visible {
-      outline-color: #b91c1c;
+      &::before {
+        transition: none;
+      }
     }
   }
 }

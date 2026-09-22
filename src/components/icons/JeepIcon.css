@@ -1,0 +1,141 @@
+@layer components {
+
+    /* 吉普車行駛範圍 */
+    .jeep-lane {
+        --jeep-width: 140px;
+        /* 車子速度 */
+        --drive-duration: 18s;
+        /* 輪子旋轉速度 */
+        --wheel-duration: 1s;
+
+        position: absolute;
+        inset-inline: 0;
+        bottom: 0;
+        height: 90px;
+        z-index: 1;
+
+        overflow: hidden;
+        pointer-events: none;
+        background-color: transparent;
+    }
+
+    /* 整台車的水平移動 */
+    .jeep-travel {
+        position: absolute;
+        inset: 0;
+        animation: jeep-drive var(--drive-duration) linear infinite;
+    }
+
+    /* 車子的組合畫布，沿用車身 SVG 比例 */
+    .jeep {
+        position: absolute;
+        bottom: 0;
+        left: calc(0px - var(--jeep-width));
+        width: var(--jeep-width);
+        aspect-ratio: 70.2 / 36.43;
+    }
+
+    .jeep-body {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
+    /* 車尾備胎：位於左側，不套旋轉動畫 */
+    .jeep-spare {
+        position: absolute;
+        left: 0;
+        top: 24%;
+        width: 7.18%;
+        height: auto;
+        display: block;
+        animation: jeep-spare-bounce 1.4s ease-in-out infinite;
+    }
+
+    /* 下方兩個行駛輪胎 */
+    .jeep-wheel {
+        position: absolute;
+        bottom: 0;
+        width: 22.66%;
+        height: auto;
+        display: block;
+        transform-origin: center;
+        animation: jeep-wheel-spin var(--wheel-duration) linear infinite;
+    }
+
+    .jeep-wheel-rear {
+        left: 14.5%;
+    }
+
+    .jeep-wheel-front {
+        left: 70.5%;
+    }
+
+    /* 使用者要求減少動態時，顯示靜止車輛 */
+    @media (prefers-reduced-motion: reduce) {
+
+        .jeep-travel,
+        .jeep-wheel,
+        .jeep-spare {
+            animation: none;
+        }
+
+        .jeep {
+            left: 24px;
+        }
+    }
+}
+
+/* 從畫面左側外面，開到右側外面 */
+@keyframes jeep-drive {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(calc(100% + var(--jeep-width)));
+    }
+}
+
+/* 向右行駛，輪胎順時針旋轉 */
+@keyframes jeep-wheel-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 備胎輕微上下晃動，營造自然的動畫效果。 */
+@keyframes jeep-spare-bounce {
+
+    0%,
+    40%,
+    100% {
+        transform: translateY(0);
+    }
+
+    12% {
+        transform: translateY(-1px);
+    }
+
+    24% {
+        transform: translateY(0.5px);
+    }
+
+    62% {
+        transform: translateY(-1.5px);
+    }
+
+    76% {
+        transform: translateY(0.5px);
+    }
+
+    88% {
+        transform: translateY(-0.5px);
+    }
+}

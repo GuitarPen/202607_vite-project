@@ -1,5 +1,17 @@
 # 專案代辦清單
 
+- [ ] 抽出共用彈窗元件 `Modal.jsx`（後續整理）
+  - 統一彈窗外框、背景遮罩、標題列與關閉按鈕，透過 `children` 放入不同表單。
+  - 讓 `ProductModal.jsx` 與 `ArticleModal.jsx` 使用共用元件，各自保留表單欄位與 API 邏輯。
+  - 統一開關、Escape 關閉、焦點管理、背景捲動鎖定，以及儲存中禁止關閉的行為。
+  - 驗收：商品與文章的新增、編輯皆正常；重新開啟時資料正確初始化，關閉後恢復焦點與背景捲動。目前只列入代辦，不立即重構。
+
+- [ ] 學習 CSS Modules（後續練習）
+  - 理解一般 CSS 與 CSS Modules 的差別：檔案放在元件旁不等於樣式隔離。
+  - 練習建立 `Home.module.css`，使用 `import styles from './Home.module.css'` 與 `className={styles.hero}`。
+  - 了解局部 class 命名、全域樣式，以及與 Tailwind 工具類別搭配的方式。
+  - 驗收：能用小範例確認不同元件的同名 class 不互相影響；目前先保留 `Home.css`，不立即改寫。
+
 - [ ] 後台登入驗證完成後，才渲染子頁面（後續處理）
   - 問題：`AdminLayout.jsx` 目前在驗證完成前就渲染 `<Outlet />`，導致後台子頁面可能提前發出 API 請求。
   - 處理方向：加入驗證中、驗證成功、未授權三種狀態；驗證中顯示提示，成功後才渲染 `<Outlet />`，失敗或沒有 Token 時導向登入頁。

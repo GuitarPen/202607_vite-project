@@ -28,12 +28,21 @@ function NewsletterForm () {
           aria-label='訂閱電子報'
           title='訂閱電子報'
           className='
-            inline-flex shrink-0 items-center justify-center
-            border border-brand rounded-sm px-3 text-brand cursor-pointer
-            transition-colors hover:bg-brand hover:text-white
+            group inline-flex shrink-0 items-center justify-center
+            rounded-sm border border-brand px-3 text-brand
+            transition-colors duration-200 cursor-pointer
+            hover:bg-brand hover:text-white
+            focus-visible:bg-brand focus-visible:text-white
           '
         >
-          <ArrowIcon />
+          <ArrowIcon
+            className='
+              h-5 w-5 stroke-2
+              motion-safe:transition-transform motion-safe:duration-200
+              motion-safe:group-hover:translate-x-1
+              motion-safe:group-focus-visible:translate-x-1
+            '
+          />
         </button>
       </div>
     </form>

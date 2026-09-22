@@ -1,13 +1,17 @@
 import Layout from '../Layout'
 import Home from '../pages/Home'
+import About from '../pages/About'
 import Products from '../pages/Products'
 import ProductDetail from '../pages/ProductDetail'
+import Articles from '../pages/Articles'
+import ArticlesDetail from '../pages/ArticlesDetail'
 import Cart from '../pages/Cart'
 import NotFound from '../pages/NotFound'
 import AdminLayout from '../pages/admin/AdminLayout'
 import AdminProducts from '../pages/admin/AdminProducts'
 import AdminOrders from '../pages/admin/AdminOrders'
 import AdminLogin from '../pages/admin/AdminLogin'
+import AdminArticles from '../pages/admin/AdminArticles'
 
 const routes = [
   // 前台路由 → 共用 Layout（有 Navbar + Footer）
@@ -21,11 +25,7 @@ const routes = [
       },
       {
         path: 'about',
-        element: <div>關於我們</div>
-      },
-      {
-        path: 'article',
-        element: <div>文章</div>
+        element: <About />
       },
       {
         path: 'products',
@@ -34,6 +34,14 @@ const routes = [
       {
         path: 'products/:id',
         element: <ProductDetail />
+      },
+      {
+        path: 'articles',
+        element: <Articles />
+      },
+      {
+        path: 'articles/:id',
+        element: <ArticlesDetail />
       },
       {
         path: 'cart',
@@ -63,6 +71,10 @@ const routes = [
       {
         path: 'orders',
         element: <AdminOrders />
+      },
+      {
+        path: 'articles',
+        element: <AdminArticles />
       }
     ]
   }

@@ -49,6 +49,7 @@ function AdminLayout() {
                 <Link to="/" className="hover:text-gray-300">回前台</Link>
                 <Link to="/admin" className="hover:text-gray-300">Products</Link>
                 <Link to="/admin/orders" className="hover:text-gray-300">Orders</Link>
+                <Link to="/admin/articles" className="hover:text-gray-300">Articles</Link>
             </nav>
             <main className="p-4">
                 <Outlet />

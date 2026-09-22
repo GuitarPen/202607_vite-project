@@ -22,9 +22,10 @@ function AdminProducts() {
             const res = await axios.get(
                 `${VITE_API_URL}/v2/api/${VITE_API_PATH}/admin/products`
             )
+            if (!res.data.success) throw new Error('取得商品列表失敗')
             setProducts(res.data.products || []) // ← 加 || [] 保護
             console.log('取得商品列表成功', res.data.products)
-        } catch (error) {
+        } catch {
             alert('取得商品列表失敗')
             console.log('取得商品列表失敗')
         }
@@ -52,12 +53,13 @@ function AdminProducts() {
     const handleDelete = async (id) => {
         if (!window.confirm('確定要刪除這個商品嗎？')) return
         try {
-            await axios.delete(
+            const response = await axios.delete(
                 `${VITE_API_URL}/v2/api/${VITE_API_PATH}/admin/product/${id}`
             )
+            if (!response.data.success) throw new Error('刪除失敗')
             alert('刪除成功')
             getProducts()
-        } catch (error) {
+        } catch {
             alert('刪除失敗')
         }
     }

@@ -1,0 +1,312 @@
+@layer components {
+
+    /* 1. 主視覺 */
+    .hero-frame {
+        overflow-x: clip;
+        overflow-y: visible;
+    }
+
+    .hero {
+        position: relative;
+        isolation: isolate;
+        z-index: 1;
+
+        /* 主視覺高度與內容排版 */
+        min-height: 700px;
+
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+
+        &::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background: linear-gradient(to bottom,
+                    color-mix(in srgb, var(--color-ink) 90%, transparent) 0%,
+                    transparent 100%);
+            mix-blend-mode: multiply;
+        }
+    }
+
+    .hero-content {
+        /* 集中管理文字寬度、車子間距與容器內距 */
+        --hero-copy-width: 39rem;
+        --hero-car-gap: 0px;
+        --hero-side-padding: 1rem;
+
+        position: relative;
+        z-index: 2;
+
+        /* 與 hero 同高，保留車子向下突出的位置 */
+        min-height: inherit;
+
+        display: flex;
+        align-items: center;
+        padding-top: 128px;
+        padding-bottom: 64px;
+        padding-inline: var(--hero-side-padding);
+    }
+
+    @media (min-width: 48rem) {
+        .hero-content {
+            --hero-side-padding: 2rem;
+        }
+    }
+
+    .hero-car {
+        position: absolute;
+        bottom: -190px;
+        left: auto;
+
+        right: calc(var(--hero-side-padding) + var(--hero-copy-width) + var(--hero-car-gap));
+
+        z-index: 1;
+        width: 820px;
+        max-width: none;
+        height: auto;
+        pointer-events: none;
+    }
+
+    .hero-copy {
+        position: relative;
+        z-index: 2;
+
+        width: var(--hero-copy-width);
+        max-width: 100%;
+        flex-shrink: 0;
+        margin-left: auto;
+
+        color: white;
+        transform: translateY(215px);
+    }
+
+
+    /* 2. 關於品牌 */
+    .about {
+        /* 車子突出 190px，再預留與品牌內容的距離 */
+        padding-top: 260px;
+        padding-bottom: 96px;
+    }
+
+    .about-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+    }
+
+    @media (min-width: 64rem) {
+        .about-layout {
+            grid-template-columns: 520px minmax(0, 1fr);
+            gap: 40px;
+        }
+    }
+
+    .about-content {
+        max-width: none;
+    }
+
+    .about-stats {
+        display: grid;
+        grid-template-columns: 1fr;
+        align-content: start;
+        gap: 32px;
+    }
+
+    .about-stat {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 8px;
+        min-height: 148px;
+        padding: 24px;
+        border-radius: 12px;
+        background-color: var(--color-paper);
+        box-shadow: var(--shadow-card);
+
+        /* 底圖集中右側；漸層獨立覆蓋，文字不會一起變透明。 */
+        &::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -2;
+            background-image: var(--stat-image);
+            background-size: auto 100%;
+            background-position: right center;
+            background-repeat: no-repeat;
+            pointer-events: none;
+        }
+
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            background: linear-gradient(to right,
+                    var(--color-paper) 0%,
+                    var(--color-paper) 44%,
+                    color-mix(in srgb, var(--color-paper) 85%, transparent) 62%,
+                    color-mix(in srgb, var(--color-paper) 25%, transparent) 100%);
+            pointer-events: none;
+        }
+
+        & dt {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 4px 8px;
+            font-family: 'Noto Sans CJK TC', var(--font-sans);
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        & dd {
+            order: -1;
+            margin: 0;
+            font-family: 'Oswald', sans-serif;
+            font-size: 48px;
+            font-weight: 600;
+            line-height: 1.2;
+            color: var(--color-accent);
+        }
+    }
+
+    .about-stat-english {
+        font-family: var(--font-moderustic);
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--color-accent);
+    }
+
+    /* 3. 商品分類 */
+    .categories {
+        padding: 0;
+        border: none;
+    }
+
+    .category-inner {
+        padding-block: 40px 32px;
+    }
+
+    .category-heading {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: center;
+        gap: 8px 20px;
+
+        color: var(--color-ink);
+        text-align: center;
+
+        & h2 {
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        & p {
+            font-family: var(--font-playfair);
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+    }
+
+    .category-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+        margin-top: 36px;
+    }
+
+    .category-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+
+        height: 100%;
+        padding: 4px 8px;
+        color: var(--color-ink);
+        text-align: center;
+
+        &:hover,
+        &:focus-visible {
+            color: var(--color-accent);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-brand);
+            outline-offset: 6px;
+            border-radius: 4px;
+        }
+    }
+
+    .category-icon {
+        width: 100px;
+        height: 81px;
+        object-fit: contain;
+    }
+
+    .category-name {
+        font-size: 20px;
+        font-weight: 400;
+        line-height: 1.5;
+    }
+
+    /* 較寬的畫面：四個分類並排 */
+    @media (min-width: 48rem) {
+        .category-list {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+
+    /* 保留輕微互動，不增加卡片背景 */
+    @media (prefers-reduced-motion: no-preference) {
+        .category-card {
+            transition: color 0.2s ease;
+        }
+
+        .category-icon {
+            transition: transform 0.2s ease;
+        }
+
+        .category-card:hover .category-icon,
+        .category-card:focus-visible .category-icon {
+            transform: translateY(-4px);
+        }
+    }
+
+    /* 4. 精選商品 */
+    .featured-products {
+        padding-block: 72px;
+    }
+
+    /* 品牌介紹、分類、精選商品共用背景 */
+    .home-discovery {
+        position: relative;
+        isolation: isolate;
+        z-index: 0;
+
+        &::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -2;
+            pointer-events: none;
+            background-image: url('../assets/images/roadTrip_bg.png');
+            background-size: cover;
+            background-position: center bottom;
+            background-repeat: no-repeat;
+            filter: grayscale(1);
+        }
+    }
+}

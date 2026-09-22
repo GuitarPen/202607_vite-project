@@ -1,0 +1,193 @@
+@layer components {
+    .featured-products {
+        padding-block: 72px;
+    }
+
+    .featured-heading {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: left;
+        gap: 8px 20px;
+        margin-bottom: 24px;
+        color: var(--color-brand);
+        text-align: center;
+
+        & h2 {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        & p {
+            font-family: var(--font-playfair);
+            font-size: 28px;
+            font-weight: 700;
+        }
+    }
+
+    .featured-controls {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .featured-track {
+        --product-gap: 24px;
+
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: 82%;
+        gap: var(--product-gap);
+
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding-block: 4px 20px;
+
+        /* 讓支援 WebKit 捲軸偽元素的瀏覽器使用下面的樣式 */
+        scrollbar-width: auto;
+        scrollbar-color: auto;
+
+        /* 橫向捲軸高度 */
+        &::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        /* 捲軸底色與圓角 */
+        &::-webkit-scrollbar-track {
+            background-color: var(--color-paper);
+            border-radius: 999px;
+        }
+
+        /* 可拖曳的滑塊 */
+        &::-webkit-scrollbar-thumb {
+            background-color: var(--color-sand-dark);
+            border-radius: 999px;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-brand);
+            outline-offset: 4px;
+        }
+    }
+
+    .featured-item {
+        min-width: 0;
+        scroll-snap-align: start;
+    }
+
+    .featured-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        color: var(--color-ink);
+
+        &:focus-visible {
+            outline: 2px solid var(--color-brand);
+            outline-offset: -2px;
+            border-radius: 12px;
+        }
+
+        &:hover h3 {
+            color: var(--color-brand);
+        }
+    }
+
+    .featured-image {
+        display: grid;
+        place-items: center;
+        aspect-ratio: 1;
+        overflow: hidden;
+        border-radius: 12px 12px 0 0;
+        background-color: var(--color-sand);
+
+        & img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    .featured-info {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding-block: 16px;
+        padding-inline: 28px;
+        border-radius: 0 0 12px 12px;
+        background-color: rgb(255 255 255 / 75%);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+
+        & h3 {
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 1.5;
+
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            overflow: hidden;
+        }
+    }
+
+    .featured-category {
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--color-brand-grey);
+    }
+
+    .featured-prices {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px 8px;
+        margin-top: auto;
+        width: 100%;
+    }
+
+    .featured-price {
+        font-family: var(--font-moderustic);
+        font-size: 24px;
+        font-weight: bolder;
+        color: var(--color-accent);
+
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .featured-original-price {
+        font-family: var(--font-moderustic);
+        font-size: 14px;
+        padding-top: 4px;
+        color: var(--color-brand-grey);
+        white-space: nowrap;
+    }
+
+    @media (min-width: 48rem) {
+        .featured-track {
+            grid-auto-columns: calc((100% - var(--product-gap)) / 2);
+        }
+    }
+
+    @media (min-width: 64rem) {
+        .featured-track {
+            grid-auto-columns: calc((100% - 3 * var(--product-gap)) / 4);
+        }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+        .featured-image img {
+            transition: transform 0.25s ease;
+        }
+
+        .featured-card:hover img,
+        .featured-card:focus-visible img {
+            transform: scale(1.04);
+        }
+    }
+}
