@@ -125,7 +125,7 @@
     color: white;
   }
 
-  /* 手機首頁頂部以漸層襯托雙列導覽，捲動時淡出。 */
+  /* 手機首頁頂部以半透明純色背景，捲動時淡出。 */
   @media (max-width: 459px) {
     .site-header::before {
       content: '';
