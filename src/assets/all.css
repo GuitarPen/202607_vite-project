@@ -125,6 +125,24 @@
     color: white;
   }
 
+  /* 手機首頁頂部以漸層襯托雙列導覽，捲動時淡出。 */
+  @media (max-width: 459px) {
+    .site-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background: rgba(18, 26, 28, 0.4);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .site-header.header-home::before {
+      opacity: 1;
+    }
+  }
+
   /* 內頁 header，或首頁往下捲後 */
   .header-inner {
     background-color: var(--color-paper);
@@ -155,6 +173,8 @@
 
   @media (prefers-reduced-motion: reduce) {
     .site-header,
+    .site-header::before,
+    .site-header::after,
     .header-logo {
       transition: none;
     }

@@ -141,7 +141,7 @@ function Layout () {
             ${useLightHeader ? 'header-home' : 'header-inner'}
             ${isScrolled ? 'header-scrolled' : ''}`}
         >
-          <div className='site-container flex flex-wrap items-center gap-10 py-5'>
+          <div className='site-container flex flex-wrap items-center gap-x-6 gap-y-2 py-3 md:gap-x-10 md:gap-y-10 md:py-5'>
             <Link
               to='/'
               title='ROADKIT 首頁'
@@ -156,7 +156,7 @@ function Layout () {
 
             <nav
               aria-label='主要導覽'
-              className='ml-auto flex items-center gap-4 md:gap-8'
+              className='order-3 flex basis-full items-center justify-center gap-4 min-[460px]:order-none min-[460px]:ml-auto min-[460px]:basis-auto min-[460px]:justify-start md:gap-8'
             >
               {/* 關於我們、商品、文章 */}
               <NavLink to='/about' className='nav-link'>
@@ -170,7 +170,7 @@ function Layout () {
               </NavLink>
             </nav>
 
-            <div className='flex items-center'>
+            <div className='ml-auto flex items-center min-[460px]:ml-0'>
               {/* 購物車連結、會員入口 */}
               {headerActions.map(action => (
                 <Link
