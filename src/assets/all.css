@@ -10,6 +10,7 @@
   --color-paper: #f7f3ee;
   --color-ink: #3d3d3d;
   --color-accent: #c17a3a;
+  --color-light-gray: #c9c9c9;
 
   --font-sans: 'Noto Sans TC', system-ui, sans-serif;
   --font-moderustic: 'Moderustic', sans-serif;
@@ -126,6 +127,7 @@
 
   /* 內頁 header，或首頁往下捲後 */
   .header-inner {
+    background-color: var(--color-paper);
     --header-hover-color: var(--color-accent);
     --header-hover-bg: rgb(74 124 89 / 10%);
 

@@ -4,6 +4,7 @@ import axios from 'axios'
 import './HomeGearPicks.css'
 import ArrowIcon from './icons/ArrowIcon'
 import TextLink from './TextLink'
+import ProductCard from './ProductCard'
 
 const { VITE_API_URL, VITE_API_PATH } = import.meta.env
 
@@ -45,6 +46,8 @@ function HomeGearPicks () {
           }
         )
 
+        console.log('products:', response)
+
         // 即使 HTTP 請求成功，API 仍可能回報操作失敗
         // 主動拋出錯誤，交給下面的 catch 處理
         if (response.data.success === false) {
@@ -54,12 +57,14 @@ function HomeGearPicks () {
         // 將商品資料存入 state，讓 React 更新畫面
         // ?? []：資料為 null 或 undefined 時，改用空陣列
         setProducts(response.data.products ?? [])
+
       } catch (error) {
         // 接住網路錯誤、HTTP 錯誤，或上方主動拋出的錯誤
         // 如果只是離開元件而取消請求，就不顯示錯誤訊息
         if (!controller.signal.aborted) {
           setError('商品暫時無法載入，請稍後重新整理頁面。')
         }
+
       } finally {
         // 不論成功或失敗，最後都會執行 finally
         // 若請求未被取消，就結束「載入中」狀態
@@ -152,7 +157,8 @@ function HomeGearPicks () {
         >
           {products.map(product => (
             <li key={product.id} className='featured-item'>
-              <Link to={`/products/${product.id}`} className='featured-card'>
+              <ProductCard product={product} />
+              {/* <Link to={`/products/${product.id}`} className='featured-card'>
                 <div className='featured-image'>
                   {product.imageUrl ? (
                     <img src={product.imageUrl} alt='' loading='lazy' />
@@ -180,7 +186,7 @@ function HomeGearPicks () {
                     )}
                   </div>
                 </div>
-              </Link>
+              </Link> */}
             </li>
           ))}
         </ul>

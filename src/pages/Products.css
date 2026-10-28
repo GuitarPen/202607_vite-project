@@ -1,0 +1,267 @@
+@layer components {
+
+    /* 商品頁 Banner：滿版背景，標題維持在內容容器內 */
+    .products-banner {
+        position: relative;
+        isolation: isolate;
+        display: flex;
+        align-items: center;
+        min-height: 160px;
+        padding-block: 32px;
+        color: white;
+        background-image: url('../assets/images/page_banner_products.png');
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+
+        &::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background: linear-gradient(to bottom,
+                    rgb(61 61 61 / 100%) 0%,
+                    rgb(123 123 123 / 70%) 100%);
+            mix-blend-mode: multiply;
+            opacity: 40%;
+        }
+
+        >.site-container {
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.4;
+            text-align: center;
+            /* text-shadow: 0 2px 8px rgb(0 0 0 / 25%); */
+        }
+
+        h1 span {
+            font-family: var(--font-playfair);
+        }
+
+        @media (min-width: 48rem) {
+            /* 依原圖 1920 × 250 的比例成長，最高 250px */
+            min-height: clamp(180px, 13.02vw, 250px);
+
+            h1 {
+                flex-direction: row;
+                justify-content: center;
+                gap: 16px;
+                font-size: 28px;
+            }
+        }
+    }
+
+    /* Banner 下方的內容留白 */
+    .products-container {
+        padding-top: 24px;
+        padding-bottom: 96px;
+    }
+
+    .products-breadcrumb {
+        margin-bottom: 32px;
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--color-ink);
+
+        ol {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        a {
+            text-underline-offset: 4px;
+
+            &:hover {
+                color: var(--color-brand);
+                text-decoration: underline;
+            }
+
+            &:focus-visible {
+                outline: 2px solid var(--color-brand);
+                outline-offset: 4px;
+                border-radius: 2px;
+            }
+        }
+    }
+
+    .products-breadcrumb-separator {
+        margin-right: 8px;
+        color: var(--color-brand-grey);
+    }
+
+    /* 數量靠左、排序靠右；窄螢幕允許換行 */
+    .products-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px 20px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        color: var(--color-ink);
+
+        > p {
+            margin: 0;
+        }
+    }
+
+    .products-sort {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
+
+        label {
+            white-space: nowrap;
+        }
+
+        select {
+            appearance: auto;
+            min-width: 132px;
+            min-height: 40px;
+            padding: 8px 12px;
+            border: 1px solid var(--color-sand);
+            border-radius: 4px;
+            background-color: white;
+            color: var(--color-ink);
+            font: inherit;
+            cursor: pointer;
+
+            &:hover {
+                border-color: var(--color-brand-grey);
+            }
+
+            &:focus-visible {
+                outline: 2px solid var(--color-brand);
+                outline-offset: 2px;
+            }
+        }
+    }
+
+    @media (min-width: 48rem) {
+        .products-container {
+            padding-top: 36px;
+        }
+    }
+
+    .products-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 32px;
+    }
+
+    .products-results {
+        min-width: 0;
+    }
+
+    .product-filters {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+        color: var(--color-ink);
+    }
+
+    .product-filter-group {
+        min-width: 0;
+        margin: 0;
+        padding: 0;
+        border: 0;
+
+        legend {
+            margin-bottom: 12px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        &:disabled { opacity: 0.5; }
+    }
+
+    .product-filter-option {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding-block: 6px;
+        font-size: 14px;
+        line-height: 1.6;
+        cursor: pointer;
+
+        input {
+            appearance: auto;
+            flex-shrink: 0;
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            accent-color: var(--color-brand);
+            cursor: inherit;
+        }
+
+        &:hover { color: var(--color-brand); }
+        &:has(input:disabled) { cursor: not-allowed; }
+    }
+
+    .product-filter-clear {
+        width: 100%;
+        min-height: 40px;
+        padding: 8px 16px;
+        border: 1px solid var(--color-brand-grey);
+        border-radius: 4px;
+        cursor: pointer;
+
+        &:hover:not(:disabled) {
+            color: var(--color-brand);
+            background-color: var(--color-sand);
+        }
+
+        &:disabled { opacity: 0.5; cursor: not-allowed; }
+    }
+
+    .product-filters :focus-visible {
+        outline: 2px solid var(--color-brand);
+        outline-offset: 3px;
+    }
+
+    .products-message {
+        padding-block: 40px;
+        text-align: center;
+
+        button { margin-top: 12px; text-decoration: underline; cursor: pointer; }
+    }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 32px 24px;
+    }
+
+    @media (min-width: 40rem) {
+        .products-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (min-width: 64rem) {
+        .products-layout {
+            grid-template-columns: 200px minmax(0, 1fr);
+        }
+
+        .products-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+}

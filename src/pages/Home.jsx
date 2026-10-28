@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import useReveal from '../hooks/useReveal'
 import './Home.css'
 import banner from '../assets/images/banner.jpg'
 import bannerCar from '../assets/images/banner-car.png'
@@ -15,6 +17,7 @@ import categoryCar from '../assets/images/category_car.svg'
 import DashedDivider from '../components/DashedDivider'
 import FeaturedProducts from '../components/HomeGearPicks'
 import TextLink from '../components/TextLink'
+import HomeTravelLog from '../components/HomeTravelLog'
 
 // 關於品牌
 const aboutStats = [
@@ -63,6 +66,31 @@ const categories = [
 ]
 
 function Home () {
+  // 紀錄滾動數值
+  const [scrollY, setScrollY] = useState(0)
+  // hero車子的滾動狀態
+  const carOffsetX = Math.min(scrollY * 0.12, 70)
+  const carOffsetY = Math.min(scrollY * 0.08, 45)
+
+  const aboutReveal = useReveal()
+  const productsReveal = useReveal()
+  const travelReveal = useReveal()
+
+  useEffect(() => {
+    // 讀取目前網頁向下捲動了多少 px
+    const handleScroll = () => {
+      setScrollY(window.scrollY)
+    }
+    // 進入首頁時先讀取一次
+    handleScroll()
+    // 使用者捲動時，執行 handleScroll
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    // 離開首頁時，停止監聽
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
+
   return (
     <>
       {/* 1. 主視覺 */}
@@ -77,7 +105,15 @@ function Home () {
         >
           <div className='site-container hero-content'>
             {/* 車子獨立於內容容器 */}
-            <img src={bannerCar} alt='' className='hero-car' />
+            <img
+              src={bannerCar}
+              alt=''
+              className='hero-car'
+              style={{
+                '--car-offset-x': `${carOffsetX}px`,
+                '--car-offset-y': `${carOffsetY}px`
+              }}
+            />
             <div className='hero-copy'>
               <div className='flex items-center gap-2 text-brand'>
                 <CompassIcon className='h-6.25 w-6.25 shrink-0' />
@@ -105,7 +141,7 @@ function Home () {
           </div>
         </section>
       </div>
-      
+
       <div className='home-discovery'>
         {/* 2. 關於品牌 */}
         <section className='about' aria-labelledby='about-title'>
@@ -141,12 +177,17 @@ function Home () {
               />
             </div>
 
-            <dl className='about-stats'>
-              {aboutStats.map(stat => (
+            <dl ref={aboutReveal.ref} className='about-stats'>
+              {aboutStats.map((stat, index) => (
                 <div
                   key={stat.english}
-                  className='about-stat'
-                  style={{ '--stat-image': `url("${stat.image}")` }}
+                  className={`about-stat reveal ${
+                    aboutReveal.isVisible ? 'is-active' : ''
+                  }`}
+                  style={{
+                    '--stat-image': `url("${stat.image}")`,
+                    '--reveal-delay': `${index * 0.6}s`
+                  }}
                 >
                   <dt>
                     <span>{stat.label}</span>
@@ -206,30 +247,26 @@ function Home () {
 
         {/* 4. 精選商品 */}
         <section className='featured-products' aria-labelledby='products-title'>
-          <div className='site-container'>
+          <div
+            ref={productsReveal.ref}
+            className={`site-container reveal ${
+              productsReveal.isVisible ? 'is-active' : ''
+            }`}
+          >
             <FeaturedProducts />
           </div>
         </section>
       </div>
 
       {/* 5. 旅行誌 */}
-      <section className='travel-log pb-24' aria-labelledby='travel-log-title'>
-        <div className='container'>
-          <h2 id='travel-log-title'>旅行誌 TRAVEL LOG</h2>
-
-          <div className='travel-log-layout'>
-            <article className='featured-article'>
-              {/* 左側大文章：圖片、日期、標題、摘要、作者 */}
-            </article>
-
-            <div className='article-list'>
-              <article className='article-card'>{/* 右上文章 */}</article>
-
-              <article className='article-card'>{/* 右下文章 */}</article>
-            </div>
-          </div>
-
-          <div className='section-actions'>{/* 查看所有文章 */}</div>
+      <section className='travel-log pb-25' aria-labelledby='travel-log-title'>
+        <div
+          ref={travelReveal.ref}
+          className={`site-container reveal ${
+            travelReveal.isVisible ? 'is-active' : ''
+          }`}
+        >
+          <HomeTravelLog />
         </div>
       </section>
     </>

@@ -4,241 +4,334 @@ import { useEffect, useRef, useState } from 'react'
 const { VITE_API_URL, VITE_API_PATH } = import.meta.env
 
 const defaultForm = {
-    title: '',
-    category: '',
-    origin_price: '',
-    price: '',
-    description: '',
-    content: '',
-    unit: '',
-    imageUrl: '',
-    is_enabled: 1,
+  title: '',
+  category: '',
+  origin_price: '',
+  price: '',
+  description: '',
+  content: '',
+  unit: '',
+  imageUrl: '',
+  imagesUrl: [],
+  is_enabled: 1
 }
 
-function ProductModal({ isOpen, onClose, mode, product, onSuccess }) {
-    const [formData, setFormData] = useState(defaultForm)
-    const [saving, setSaving] = useState(false)
-    const dialogRef = useRef(null)
+function ProductModal ({ isOpen, onClose, mode, product, onSuccess }) {
+  const [formData, setFormData] = useState(defaultForm)
+  const [saving, setSaving] = useState(false)
+  const dialogRef = useRef(null)
 
-    // 與文章彈窗相同：開啟 dialog，並鎖定背景捲動
-    useEffect(() => {
-        if (!isOpen) return
-        const dialog = dialogRef.current
-        const previousOverflow = document.body.style.overflow
-        if (!dialog.open) dialog.showModal()
-        document.body.style.overflow = 'hidden'
+  // 與文章彈窗相同：開啟 dialog，並鎖定背景捲動
+  useEffect(() => {
+    if (!isOpen) return
+    const dialog = dialogRef.current
+    const previousOverflow = document.body.style.overflow
+    if (!dialog.open) dialog.showModal()
+    document.body.style.overflow = 'hidden'
 
-        return () => {
-            dialog.close()
-            document.body.style.overflow = previousOverflow
-        }
-    }, [isOpen])
+    return () => {
+      dialog.close()
+      document.body.style.overflow = previousOverflow
+    }
+  }, [isOpen])
 
-    const handleClose = () => {
-        if (!saving) onClose()
+  const handleClose = () => {
+    if (!saving) onClose()
+  }
+
+  // 編輯模式時帶入商品資料，新增模式時清空
+  useEffect(() => {
+    if (mode === 'edit' && product) {
+      setFormData({
+        ...defaultForm,
+        ...product,
+        imagesUrl: product.imagesUrl ?? []
+      })
+    } else {
+      setFormData(defaultForm)
+    }
+  }, [isOpen, mode, product])
+
+  const handleChange = e => {
+    const { name, value } = e.target
+    setFormData({ ...formData, [name]: value })
+  }
+
+  const handleImageChange = (index, value) => {
+    // 複製陣列，避免直接修改原本的 state
+    const images = [...(formData.imagesUrl ?? [])]
+
+    // 更新指定位置的圖片網址
+    images[index] = value
+
+    setFormData({
+      ...formData,
+      imagesUrl: images
+    })
+  }
+
+  const handleSubmit = async e => {
+    e.preventDefault()
+    if (saving) return
+    setSaving(true)
+    try {
+      const submitData = {
+        ...formData,
+        origin_price: Number(formData.origin_price),
+        price: Number(formData.price),
+        imagesUrl: (formData.imagesUrl ?? [])
+          .map(url => url.trim())
+          .filter(url => url !== '')
+      }
+
+      let response
+
+      if (mode === 'create') {
+        response = await axios.post(
+          `${VITE_API_URL}/v2/api/${VITE_API_PATH}/admin/product`,
+          { data: submitData } // ← 改成 submitData
+        )
+      } else {
+        response = await axios.put(
+          `${VITE_API_URL}/v2/api/${VITE_API_PATH}/admin/product/${product.id}`,
+          { data: submitData } // ← 改成 submitData
+        )
+      }
+      if (!response.data.success) throw new Error('儲存失敗')
+    } catch {
+      setSaving(false)
+      alert(mode === 'create' ? '新增失敗' : '修改失敗')
+      return
     }
 
-    // 編輯模式時帶入商品資料，新增模式時清空
-    useEffect(() => {
-        if (mode === 'edit' && product) {
-            setFormData(product)
-        } else {
-            setFormData(defaultForm)
-        }
-    }, [isOpen, mode, product])
+    setSaving(false)
+    alert(mode === 'create' ? '新增成功' : '修改成功')
+    onSuccess()
+    onClose()
+  }
 
-    const handleChange = (e) => {
-        const { name, value } = e.target
-        setFormData({ ...formData, [name]: value })
-    }
+  if (!isOpen) return null
 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-        if (saving) return
-        setSaving(true)
-        try {
-            const submitData = {
-                ...formData,
-                origin_price: Number(formData.origin_price),
-                price: Number(formData.price),
-            }
-
-            let response
-
-            if (mode === 'create') {
-                response = await axios.post(
-                    `${VITE_API_URL}/v2/api/${VITE_API_PATH}/admin/product`,
-                    { data: submitData }  // ← 改成 submitData
-                )
-            } else {
-                response = await axios.put(
-                    `${VITE_API_URL}/v2/api/${VITE_API_PATH}/admin/product/${product.id}`,
-                    { data: submitData }  // ← 改成 submitData
-                )
-            }
-            if (!response.data.success) throw new Error('儲存失敗')
-        } catch {
-            setSaving(false)
-            alert(mode === 'create' ? '新增失敗' : '修改失敗')
-            return
-        }
-
-        setSaving(false)
-        alert(mode === 'create' ? '新增成功' : '修改成功')
-        onSuccess()
-        onClose()
-    }
-
-    if (!isOpen) return null
-
-    return (
-        <dialog
-            ref={dialogRef}
-            aria-labelledby="product-modal-title"
-            onCancel={event => {
-                event.preventDefault()
-                handleClose()
-            }}
-            className="fixed inset-0 m-auto
+  return (
+    <dialog
+      ref={dialogRef}
+      aria-labelledby='product-modal-title'
+      onCancel={event => {
+        event.preventDefault()
+        handleClose()
+      }}
+      className='fixed inset-0 m-auto
                 max-h-[85vh] w-[calc(100%-2rem)] max-w-2xl
                 overflow-y-auto rounded-xl border-0
-                bg-paper p-6 text-ink shadow-xl backdrop:bg-black/50"
+                bg-paper p-6 text-ink shadow-xl backdrop:bg-black/50'
+    >
+      <div className='mb-6 flex items-center justify-between gap-4'>
+        <h2 id='product-modal-title' className='text-xl font-bold'>
+          {mode === 'create' ? '新增商品' : '編輯商品'}
+        </h2>
+        <button
+          type='button'
+          onClick={handleClose}
+          disabled={saving}
+          aria-label='關閉商品編輯視窗'
+          className='cursor-pointer inline-flex size-10 shrink-0 items-center justify-center
+          rounded hover:bg-sand disabled:opacity-50'
         >
-                <div className="mb-6 flex items-center justify-between gap-4">
-                    <h2 id="product-modal-title" className="text-xl font-bold">
-                        {mode === 'create' ? '新增商品' : '編輯商品'}
-                    </h2>
-                    <button
-                        type="button"
-                        onClick={handleClose}
-                        disabled={saving}
-                        aria-label="關閉商品編輯視窗"
-                        className="inline-flex size-10 shrink-0 items-center justify-center
-                            rounded hover:bg-sand disabled:opacity-50"
-                    >
-                        <span aria-hidden="true">✕</span>
-                    </button>
+          <span aria-hidden='true'>✕</span>
+        </button>
+      </div>
+
+      <form onSubmit={handleSubmit} aria-busy={saving}>
+        <fieldset disabled={saving} className='space-y-4'>
+          <div>
+            <label htmlFor='product-title' className='mb-1 block'>
+              商品名稱
+            </label>
+            <input
+              type='text'
+              id='product-title'
+              name='title'
+              value={formData.title}
+              onChange={handleChange}
+              className='form-input'
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor='product-category' className='mb-1 block'>
+              分類
+            </label>
+            <input
+              type='text'
+              id='product-category'
+              name='category'
+              value={formData.category}
+              onChange={handleChange}
+              className='form-input'
+            />
+          </div>
+          <div className='flex gap-3'>
+            <div className='min-w-0 flex-1'>
+              <label htmlFor='product-origin_price' className='mb-1 block'>
+                原價
+              </label>
+              <input
+                type='number'
+                id='product-origin_price'
+                name='origin_price'
+                value={formData.origin_price}
+                onChange={handleChange}
+                className='form-input'
+              />
+            </div>
+            <div className='min-w-0 flex-1'>
+              <label htmlFor='product-price' className='mb-1 block'>
+                售價
+              </label>
+              <input
+                type='number'
+                id='product-price'
+                name='price'
+                value={formData.price}
+                onChange={handleChange}
+                className='form-input'
+              />
+            </div>
+          </div>
+          <div>
+            <label htmlFor='product-unit' className='mb-1 block'>
+              單位
+            </label>
+            <input
+              type='text'
+              id='product-unit'
+              name='unit'
+              value={formData.unit}
+              onChange={handleChange}
+              className='form-input'
+            />
+          </div>
+          <div>
+            <label htmlFor='product-description' className='mb-1 block'>
+              商品描述
+            </label>
+            <textarea
+              id='product-description'
+              name='description'
+              value={formData.description}
+              onChange={handleChange}
+              className='form-input'
+              rows={3}
+            />
+          </div>
+          <div>
+            <label htmlFor='product-content' className='mb-1 block'>
+              商品詳細內容
+            </label>
+            <textarea
+              id='product-content'
+              name='content'
+              value={formData.content ?? ''}
+              onChange={handleChange}
+              className='form-input'
+              rows={6}
+              placeholder='輸入商品規格、材質、使用方式等詳細資訊'
+            />
+          </div>
+          <div>
+            <label htmlFor='product-imageUrl' className='mb-1 block'>
+              圖片網址
+            </label>
+            <input
+              type='text'
+              id='product-imageUrl'
+              name='imageUrl'
+              value={formData.imageUrl}
+              onChange={handleChange}
+              className='form-input'
+            />
+            {/* 圖片預覽 */}
+            <div className='mt-2 border rounded overflow-hidden h-48 flex items-center justify-center bg-gray-50'>
+              {formData.imageUrl ? (
+                <img
+                  src={formData.imageUrl}
+                  alt='商品預覽'
+                  className='h-full w-full object-contain'
+                />
+              ) : (
+                <p className='text-gray-400 text-sm'>輸入圖片網址後顯示預覽</p>
+              )}
+            </div>
+            {/* 附圖欄位 */}
+            <div className='space-y-4'>
+              <p className='font-medium'>商品附圖（最多 5 張）</p>
+
+              {[0, 1, 2, 3, 4].map(index => (
+                <div key={index}>
+                  <label
+                    htmlFor={`product-image-${index}`}
+                    className='mb-1 block'
+                  >
+                    附圖 {index + 1}
+                  </label>
+
+                  <input
+                    id={`product-image-${index}`}
+                    type='text'
+                    value={formData.imagesUrl?.[index] ?? ''}
+                    onChange={e => handleImageChange(index, e.target.value)}
+                    className='form-input'
+                    placeholder='輸入圖片網址，留白表示不使用'
+                  />
+
+                  {formData.imagesUrl?.[index] && (
+                    <img
+                      src={formData.imagesUrl[index]}
+                      alt={`商品附圖 ${index + 1} 預覽`}
+                      className='mt-2 h-32 w-full rounded border border-sand object-contain'
+                    />
+                  )}
                 </div>
+              ))}
+            </div>
+          </div>
+          <div className='flex items-center gap-2'>
+            <input
+              type='checkbox'
+              name='is_enabled'
+              id='is_enabled'
+              checked={formData.is_enabled === 1}
+              onChange={e =>
+                setFormData({
+                  ...formData,
+                  is_enabled: e.target.checked ? 1 : 0
+                })
+              }
+            />
+            <label htmlFor='is_enabled' className='text-sm'>
+              是否啟用
+            </label>
+          </div>
 
-                <form onSubmit={handleSubmit} aria-busy={saving}>
-                  <fieldset disabled={saving} className="space-y-4">
-                    <div>
-                        <label htmlFor="product-title" className="mb-1 block">商品名稱</label>
-                        <input
-                            type="text"
-                            id="product-title" name="title"
-                            value={formData.title}
-                            onChange={handleChange}
-                            className="form-input"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="product-category" className="mb-1 block">分類</label>
-                        <input
-                            type="text"
-                            id="product-category" name="category"
-                            value={formData.category}
-                            onChange={handleChange}
-                            className="form-input"
-                        />
-                    </div>
-                    <div className="flex gap-3">
-                        <div className="min-w-0 flex-1">
-                            <label htmlFor="product-origin_price" className="mb-1 block">原價</label>
-                            <input
-                                type="number"
-                                id="product-origin_price" name="origin_price"
-                                value={formData.origin_price}
-                                onChange={handleChange}
-                                className="form-input"
-                            />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                            <label htmlFor="product-price" className="mb-1 block">售價</label>
-                            <input
-                                type="number"
-                                id="product-price" name="price"
-                                value={formData.price}
-                                onChange={handleChange}
-                                className="form-input"
-                            />
-                        </div>
-                    </div>
-                    <div>
-                        <label htmlFor="product-unit" className="mb-1 block">單位</label>
-                        <input
-                            type="text"
-                            id="product-unit" name="unit"
-                            value={formData.unit}
-                            onChange={handleChange}
-                            className="form-input"
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="product-description" className="mb-1 block">商品描述</label>
-                        <textarea
-                            id="product-description" name="description"
-                            value={formData.description}
-                            onChange={handleChange}
-                            className="form-input"
-                            rows={3}
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="product-imageUrl" className="mb-1 block">圖片網址</label>
-                        <input
-                            type="text"
-                            id="product-imageUrl" name="imageUrl"
-                            value={formData.imageUrl}
-                            onChange={handleChange}
-                            className="form-input"
-                        />
-                        {/* 圖片預覽 */}
-                        <div className="mt-2 border rounded overflow-hidden h-48 flex items-center justify-center bg-gray-50">
-                            {formData.imageUrl ? (
-                                <img
-                                    src={formData.imageUrl}
-                                    alt="商品預覽"
-                                    className="h-full w-full object-contain"
-                                />
-                            ) : (
-                                <p className="text-gray-400 text-sm">輸入圖片網址後顯示預覽</p>
-                            )}
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            name="is_enabled"
-                            id="is_enabled"
-                            checked={formData.is_enabled === 1}
-                            onChange={(e) =>
-                                setFormData({ ...formData, is_enabled: e.target.checked ? 1 : 0 })
-                            }
-                        />
-                        <label htmlFor="is_enabled" className="text-sm">是否啟用</label>
-                    </div>
-
-                    <div className="flex justify-end gap-3 border-t border-sand pt-4">
-                        <button
-                            type="button"
-                            onClick={handleClose}
-                            className="rounded border px-4 py-2 hover:bg-sand disabled:opacity-50"
-                        >
-                            取消
-                        </button>
-                        <button
-                            type="submit"
-                            className="rounded bg-brand px-4 py-2 text-white disabled:opacity-50"
-                        >
-                            {saving ? '儲存中…' : mode === 'create' ? '新增商品' : '儲存變更'}
-                        </button>
-                    </div>
-                  </fieldset>
-                </form>
-        </dialog>
-    )
+          <div className='flex justify-end gap-3 border-t border-sand pt-4'>
+            <button
+              type='button'
+              onClick={handleClose}
+              className='cursor-pointer rounded border px-4 py-2 hover:bg-sand disabled:opacity-50'
+            >
+              取消
+            </button>
+            <button
+              type='submit'
+              className='cursor-pointer rounded bg-brand px-4 py-2 text-white disabled:opacity-50'
+            >
+              {saving ? '儲存中…' : mode === 'create' ? '新增商品' : '儲存變更'}
+            </button>
+          </div>
+        </fieldset>
+      </form>
+    </dialog>
+  )
 }
 
 export default ProductModal

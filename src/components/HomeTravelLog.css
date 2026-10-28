@@ -1,0 +1,193 @@
+@layer components {
+    .travel-log-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "main"
+            "top"
+            "bottom";
+        gap: 24px;
+
+        @media (min-width: 768px) {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-areas:
+                "main main"
+                "top bottom";
+        }
+
+        @media (min-width: 1024px) {
+            grid-template-areas:
+                "main top"
+                "main bottom";
+        }
+
+        .travel-article {
+            .link {
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                background-color: color-mix(in srgb,
+                        var(--color-paper) 75%,
+                        transparent);
+                border-radius: 12px;
+                height: 100%;
+
+                &:hover,
+                &:focus-visible {
+                    background-color: var(--color-paper);
+
+                    box-shadow: 0 0 24px 6px color-mix(in srgb,
+                            var(--color-sand-dark) 20%,
+                            transparent);
+                    /* &::after {
+                        opacity: 1;
+                    } */
+
+                    .image {
+                        img {
+                            transform: scale(1.04);
+                        }
+                    }
+
+                    .title {
+                        color: var(--color-brand);
+                    }
+                }
+            }
+
+            .image {
+                border-radius: 12px;
+                overflow: hidden;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+            }
+
+            .content {
+                flex: 1;
+                padding: 12px;
+
+                time {
+                    color: var(--color-gray-400);
+                }
+
+                .title {
+                    margin: 12px 0;
+                    font-size: 24px;
+                    font-weight: 500;
+                    display: -webkit-box;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: 2;
+                    line-clamp: 2;
+                    overflow: hidden;
+                }
+
+                .description {
+                    margin: 16px 0;
+                    display: -webkit-box;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: 3;
+                    line-clamp: 3;
+                    overflow: hidden;
+                }
+
+                .meta {
+                    color: var(--color-gray-400);
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+            }
+        }
+
+        .article-card-main {
+            grid-area: main;
+
+            @media (min-width: 768px) {
+                .image {
+                    height: 350px;
+                }
+            }
+
+            @media (min-width: 1024px) {
+                .image {
+                    height: 270px;
+                }
+            }
+        }
+
+        .article-card-top {
+            grid-area: top;
+        }
+
+        .article-card-bottom {
+            grid-area: bottom;
+        }
+
+        .article-card-top,
+        .article-card-bottom {
+
+            @media (min-width: 768px) {
+                .image {
+                    height: 270px;
+                }
+            }
+
+            @media (min-width: 1024px) {
+                .link {
+                    flex-direction: row;
+                    align-items: stretch;
+                }
+
+                .image {
+                    height: auto;
+                    width: 210px;
+                }
+            }
+
+        }
+
+
+        /* 使用者允許動畫時，才加入平滑轉場 */
+        @media (prefers-reduced-motion: no-preference) {
+            .travel-article {
+                .link {
+                    transition: box-shadow 0.3s ease;
+
+                    &::after {
+                        transition: opacity 0.25s ease;
+                    }
+                }
+
+                .image {
+                    img {
+                        transition: transform 0.4s ease;
+                    }
+                }
+
+                .title {
+                    transition: color 0.25s ease;
+                }
+            }
+        }
+
+        /* 偏好減少動態效果時，保留變色、不放大圖片 */
+        @media (prefers-reduced-motion: reduce) {
+            .travel-article {
+                .link {
+
+                    &:hover,
+                    &:focus-visible {
+                        .image img {
+                            transform: none;
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+}
