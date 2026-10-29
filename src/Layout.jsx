@@ -156,7 +156,7 @@ function Layout () {
 
             <nav
               aria-label='主要導覽'
-              className='order-3 flex basis-full items-center justify-center gap-4 min-[460px]:order-none min-[460px]:ml-auto min-[460px]:basis-auto min-[460px]:justify-start md:gap-8'
+              className='order-3 flex basis-full items-center justify-center gap-4 min-[460px]:order-0 min-[460px]:ml-auto min-[460px]:basis-auto min-[460px]:justify-start md:gap-8'
             >
               {/* 關於我們、商品、文章 */}
               <NavLink to='/about' className='nav-link'>

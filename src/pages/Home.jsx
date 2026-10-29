@@ -173,7 +173,7 @@ function Home () {
               <img
                 src={AboutUsImg}
                 alt='品牌旅行故事'
-                className='h-[230px] w-full rounded-xl object-cover object-[50%_70%]'
+                className='h-57.5 w-full rounded-xl object-cover object-[50%_70%]'
               />
             </div>
 

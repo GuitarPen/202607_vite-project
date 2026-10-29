@@ -124,7 +124,7 @@ function HomeGearPicks () {
                 key={button.direction}
                 type='button'
                 className='group inline-flex shrink-0 items-center justify-center
-                  rounded-sm size-[42px] border border-brand px-3 text-brand
+                  rounded-sm size-10.5 border border-brand px-3 text-brand
                   bg-paper/20 backdrop-blur-xs transition-colors duration-200 cursor-pointer
                   hover:bg-brand hover:text-white focus-visible:bg-brand focus-visible:text-white'
                 onClick={() => scrollProducts(button.direction)}
