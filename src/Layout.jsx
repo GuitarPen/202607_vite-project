@@ -245,7 +245,7 @@ function Layout () {
               </p>
               <ul className='mt-5 flex items-center gap-2'>
                 {community.map(item => (
-                  <li>
+                  <li key={item.id}>
                     <a
                       href={item.url}
                       target='_blank'
