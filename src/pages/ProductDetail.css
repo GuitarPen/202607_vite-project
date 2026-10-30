@@ -394,9 +394,17 @@
   .product-recommendation-list {
     --recommendation-gap: 20px;
     display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--recommendation-gap);
+    margin: 0;
+    padding: 2px;
+    list-style: none;
+  }
+
+  .product-recommendation-list.is-carousel {
     grid-auto-columns: calc((100% - 4 * var(--recommendation-gap)) / 5);
     grid-auto-flow: column;
-    gap: var(--recommendation-gap);
+    grid-template-columns: none;
     overflow-x: auto;
     padding: 2px 2px 12px;
     scroll-snap-type: x mandatory;
@@ -406,6 +414,9 @@
 
   .product-recommendation-list li {
     min-width: 0;
+  }
+
+  .product-recommendation-list.is-carousel li {
     scroll-snap-align: start;
   }
 
@@ -556,8 +567,18 @@
   }
 
   @media (max-width: 47.99rem) {
-    .product-recommendation-list {
+    .product-recommendation-list.is-static {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .product-recommendation-list.is-carousel {
       grid-auto-columns: 62%;
+    }
+  }
+
+  @media (min-width: 48rem) and (max-width: 63.99rem) {
+    .product-recommendation-list.is-static {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 

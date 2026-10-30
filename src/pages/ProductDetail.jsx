@@ -11,6 +11,7 @@ const { VITE_API_URL, VITE_API_PATH } = import.meta.env
 const formatPrice = (price) => Number(price ?? 0).toLocaleString('zh-TW')
 
 function ProductDetail () {
+  // 商品資料與頁面互動狀態：圖片、數量、分頁及購物車回饋。
   const { id } = useParams()
   const [product, setProduct] = useState(null)
   const [recommendations, setRecommendations] = useState([])
@@ -23,6 +24,7 @@ function ProductDetail () {
   const [cartMessage, setCartMessage] = useState(null)
   const recommendationRef = useRef(null)
 
+  // 依網址中的商品 ID 載入詳情與同分類推薦；清理時取消未完成的請求。
   useEffect(() => {
     const controller = new AbortController()
 
@@ -53,11 +55,34 @@ function ProductDetail () {
         }
 
         if (!controller.signal.aborted) {
-          setProduct(productResponse.data.product)
-          const products = listResponse?.data?.products ?? []
-          setRecommendations(
-            products.filter((item) => String(item.id) !== String(id)).slice(0, 5)
-          )
+          const currentProduct = productResponse.data.product
+          setProduct(currentProduct)
+
+          // 商品列表可能分頁，載入其他頁後排除目前商品，只保留同分類品項。
+          if (listResponse?.data?.success && Array.isArray(listResponse.data.products)) {
+            const products = [...listResponse.data.products]
+            const totalPages = Number(listResponse.data.pagination?.total_pages) || 1
+            const pageRequests = Array.from({ length: Math.max(0, totalPages - 1) }, (_, index) =>
+              axios.get(
+                `${VITE_API_URL}/v2/api/${VITE_API_PATH}/products`,
+                { params: { page: index + 2 }, signal: controller.signal }
+              ).then((response) => response.data.success && Array.isArray(response.data.products)
+                ? response.data.products
+                : [])
+                .catch(() => [])
+            )
+
+            const remainingPages = await Promise.all(pageRequests)
+            if (!controller.signal.aborted) {
+              setRecommendations(
+                [...products, ...remainingPages.flat()].filter((item) =>
+                  String(item.id) !== String(currentProduct.id) &&
+                  currentProduct.category &&
+                  item.category === currentProduct.category
+                )
+              )
+            }
+          }
         }
       } catch {
         if (!controller.signal.aborted) {
@@ -72,12 +97,14 @@ function ProductDetail () {
     return () => controller.abort()
   }, [id])
 
+  // 合併封面與相簿圖片，去除重複或空白網址。
   const images = useMemo(() => {
     if (!product) return []
     return [...new Set([product.imageUrl, ...(Array.isArray(product.imagesUrl) ? product.imagesUrl : [])]
       .filter((url) => typeof url === 'string' && url.trim()))]
   }, [product])
 
+  // 將目前選取的商品數量送到購物車，並顯示成功或失敗訊息。
   const addToCart = async () => {
     if (!product || addingToCart) return
     setAddingToCart(true)
@@ -106,6 +133,7 @@ function ProductDetail () {
     })
   }
 
+  // 支援分頁標籤的方向鍵，以及 Home／End 快速切換。
   const handleTabKeyDown = (event) => {
     if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
     event.preventDefault()
@@ -122,6 +150,7 @@ function ProductDetail () {
 
   return (
     <div className='product-detail-page'>
+      {/* 頁首與麵包屑導覽 */}
       <header className='products-banner'>
         <div className='site-container'>
           <h1>
@@ -141,6 +170,7 @@ function ProductDetail () {
           </ol>
         </nav>
 
+        {/* 依載入狀態顯示提示；取得資料後才呈現商品詳情。 */}
         {loading && <p role='status' className='product-detail-message'>商品載入中…</p>}
 
         {!loading && error && (
@@ -152,6 +182,7 @@ function ProductDetail () {
 
         {!loading && !error && product && (
           <>
+            {/* 商品相簿、價格、購買操作，以及商品描述分頁。 */}
             <section className='product-detail-main' aria-labelledby='product-title'>
               <div className='product-gallery'>
                 <div className='product-gallery-thumbnails' role='group' aria-label='商品圖片'>
@@ -282,22 +313,28 @@ function ProductDetail () {
               </div>
             </section>
 
+            {/* 只在有同分類商品時顯示推薦清單。 */}
             {recommendations.length > 0 && (
               <section className='product-recommendations' aria-labelledby='recommendations-title'>
                 <div className='product-recommendations-heading'>
                   <h2 id='recommendations-title'>
                     你可能也喜歡 <span lang='en'>YOU MIGHT ALSO LIKE</span>
                   </h2>
-                  <div className='product-recommendation-controls'>
-                    <button type='button' aria-label='向左瀏覽推薦商品' onClick={() => scrollRecommendations(-1)}>
-                      <ArrowIcon aria-hidden='true' />
-                    </button>
-                    <button type='button' aria-label='向右瀏覽推薦商品' onClick={() => scrollRecommendations(1)}>
-                      <ArrowIcon aria-hidden='true' />
-                    </button>
-                  </div>
+                  {recommendations.length >= 6 && (
+                    <div className='product-recommendation-controls'>
+                      <button type='button' aria-label='向左瀏覽推薦商品' onClick={() => scrollRecommendations(-1)}>
+                        <ArrowIcon aria-hidden='true' />
+                      </button>
+                      <button type='button' aria-label='向右瀏覽推薦商品' onClick={() => scrollRecommendations(1)}>
+                        <ArrowIcon aria-hidden='true' />
+                      </button>
+                    </div>
+                  )}
                 </div>
-                <ul className='product-recommendation-list' ref={recommendationRef}>
+                <ul
+                  className={`product-recommendation-list ${recommendations.length >= 6 ? 'is-carousel' : 'is-static'}`}
+                  ref={recommendationRef}
+                >
                   {recommendations.map((item) => (
                     <li key={item.id}>
                       <Link to={`/products/${item.id}`} className='product-recommendation-card'>
