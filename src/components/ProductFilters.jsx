@@ -1,7 +1,11 @@
 // 父層傳入分類、目前選擇，以及修改分類的函式。
 function ProductFilters (props) {
+  // 品牌篩選目前只呈現介面，不會影響商品列表。
+  const brands = ['山嶺選物', '森野裝備', '野行者', '遠途工坊', '營地製造']
+
   return (
     <div className='product-filters'>
+      {/* 分類 */}
       <fieldset className='product-filter-group' disabled={props.disabled}>
         <legend>分類</legend>
         <label className='product-filter-option'>
@@ -23,6 +27,17 @@ function ProductFilters (props) {
               onChange={() => props.onChange(category)}
             />
             <span>{category}</span>
+          </label>
+        ))}
+      </fieldset>
+
+      {/* 品牌 */}
+      <fieldset className='product-filter-group product-filter-brands'>
+        <legend>品牌</legend>
+        {brands.map((brand) => (
+          <label key={brand} className='product-filter-option'>
+            <input type='checkbox' name='product-brand' value={brand} />
+            <span>{brand}</span>
           </label>
         ))}
       </fieldset>
