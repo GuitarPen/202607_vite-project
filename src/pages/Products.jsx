@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import './Products.css'
 import ProductCard from '../components/ProductCard'
 import ProductFilters from '../components/ProductFilters'
@@ -163,36 +164,47 @@ function Products () {
                     ))}
                   </ul>
 
-                  {/* 上一頁／下一頁 */}
                   <nav
                     aria-label='商品列表分頁'
-                    className='my-6 flex items-center justify-center gap-4'
+                    className='products-pagination'
                   >
-                    <button
-                      type='button'
-                      disabled={loading || currentPage <= 1}
-                      onClick={() => setCurrentPage(currentPage - 1)}
-                      className='cursor-pointer rounded border px-4 py-2 hover:bg-sand
-                  disabled:cursor-not-allowed disabled:opacity-40'
-                    >
-                      上一頁
-                    </button>
+                    {currentPage > 1 && (
+                      <button
+                        type='button'
+                        className='products-pagination-button'
+                        aria-label='上一頁'
+                        onClick={() => setCurrentPage(currentPage - 1)}
+                      >
+                        <ChevronLeft aria-hidden='true' size={18} strokeWidth={1.75} />
+                      </button>
+                    )}
 
-                    <span aria-live='polite'>
-                      {loading
-                        ? '載入中…'
-                        : `第 ${currentPage} 頁／共 ${totalPages} 頁`}
+                    {Array.from({ length: totalPages }, (_, index) => index + 1).map(page => (
+                      <button
+                        key={page}
+                        type='button'
+                        className='products-pagination-button'
+                        aria-current={currentPage === page ? 'page' : undefined}
+                        onClick={() => setCurrentPage(page)}
+                      >
+                        {page}
+                      </button>
+                    ))}
+
+                    {currentPage < totalPages && (
+                      <button
+                        type='button'
+                        className='products-pagination-button'
+                        aria-label='下一頁'
+                        onClick={() => setCurrentPage(currentPage + 1)}
+                      >
+                        <ChevronRight aria-hidden='true' size={18} strokeWidth={1.75} />
+                      </button>
+                    )}
+
+                    <span className='sr-only' aria-live='polite'>
+                      第 {currentPage} 頁，共 {totalPages} 頁
                     </span>
-
-                    <button
-                      type='button'
-                      disabled={loading || currentPage >= totalPages}
-                      onClick={() => setCurrentPage(currentPage + 1)}
-                      className='cursor-pointer rounded border px-4 py-2 hover:bg-sand
-                  disabled:cursor-not-allowed disabled:opacity-40'
-                    >
-                      下一頁
-                    </button>
                   </nav>
                 </>
               )}

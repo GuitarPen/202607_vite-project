@@ -224,8 +224,9 @@
         cursor: pointer;
 
         &:hover:not(:disabled) {
-            color: var(--color-brand);
-            background-color: var(--color-sand);
+            color: white;
+            border-color: var(--color-brand);
+            background-color: var(--color-brand);
         }
 
         &:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -241,6 +242,51 @@
         text-align: center;
 
         button { margin-top: 12px; text-decoration: underline; cursor: pointer; }
+    }
+
+    .products-pagination {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 48px;
+    }
+
+    .products-pagination-button {
+        display: inline-flex;
+        flex: 0 0 40px;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: 1px solid var(--color-sand);
+        border-radius: 50%;
+        color: var(--color-ink);
+        background-color: transparent;
+        font: inherit;
+        font-size: 14px;
+        line-height: 1;
+        cursor: pointer;
+        transition: color 0.2s, background-color 0.2s, border-color 0.2s;
+
+        &[aria-current='page'] {
+            border-color: var(--color-ink);
+            color: white;
+            background-color: var(--color-ink);
+            cursor: default;
+        }
+
+        &:hover:not([aria-current='page']) {
+            border-color: var(--color-sand-dark);
+            background-color: var(--color-sand);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-brand);
+            outline-offset: 3px;
+        }
     }
 
     .products-grid {
