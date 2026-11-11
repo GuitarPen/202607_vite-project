@@ -19,18 +19,30 @@ function getArticleDate (createAt) {
   }
 }
 
-function ArticleCard ({ article, variant = 'default' }) {
-  const isFeatured = variant === 'featured'
+function getSampleViewCount (articleId) {
+  const id = String(articleId ?? '')
+  if (!id) return '—'
+
+  let hash = 2166136261
+
+  for (let index = 0; index < id.length; index += 1) {
+    hash ^= id.charCodeAt(index)
+    hash = Math.imul(hash, 16777619)
+  }
+
+  return (hash >>> 0) % 1000
+}
+
+function ArticleCard ({ article }) {
   const title = String(article.title ?? '').trim() || '未命名文章'
   const description = String(article.description ?? '').trim()
   const author = String(article.author ?? '').trim()
   const image = String(article.image ?? '').trim()
   const date = getArticleDate(article.create_at)
+  const viewCount = getSampleViewCount(article.id)
 
   return (
-    <article
-      className={`article-card ${isFeatured ? 'article-card--featured' : ''}`}
-    >
+    <article className='article-card'>
       <Link
         to={`/articles/${article.id}`}
         className='article-card-link'
@@ -38,11 +50,7 @@ function ArticleCard ({ article, variant = 'default' }) {
       >
         {image ? (
           <div className='article-card-image'>
-            <img
-              src={image}
-              alt={`${title} 封面`}
-              loading={isFeatured ? 'eager' : 'lazy'}
-            />
+            <img src={image} alt={`${title} 封面`} loading='lazy' />
           </div>
         ) : (
           <div
@@ -62,13 +70,16 @@ function ArticleCard ({ article, variant = 'default' }) {
             </time>
           )}
 
-          <h3 className='article-card-title'>{title}</h3>
+          <h2 className='article-card-title'>{title}</h2>
 
           {description && (
             <p className='article-card-description'>{description}</p>
           )}
 
-          {author && <p className='article-card-author'>作者：{author}</p>}
+          <div className='article-card-meta'>
+            {author && <span>作者：{author}</span>}
+            <span>觀看次數：{viewCount}</span>
+          </div>
         </div>
       </Link>
     </article>
