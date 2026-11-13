@@ -7,6 +7,12 @@ const articleApi = `${VITE_API_URL}/v2/api/${VITE_API_PATH}/admin`
 
 function AdminArticles () {
   const [articles, setArticles] = useState([])
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    total_pages: 1,
+    has_pre: false,
+    has_next: false
+  })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -15,7 +21,7 @@ function AdminArticles () {
   const [selectedArticleId, setSelectedArticleId] = useState(null)
 
   // 進入頁面、儲存或刪除成功後，直接呼叫此函式更新列表
-  async function getArticles () {
+  async function getArticles (page = 1) {
     setLoading(true)
     setError('')
 
@@ -31,7 +37,9 @@ function AdminArticles () {
       }
 
       axios.defaults.headers.common.Authorization = token
-      const response = await axios.get(`${articleApi}/articles`)
+      const response = await axios.get(`${articleApi}/articles`, {
+        params: { page }
+      })
 
       if (response.data.success === false) {
         throw new Error('取得文章列表失敗')
@@ -42,6 +50,12 @@ function AdminArticles () {
       }
 
       setArticles(response.data.articles)
+      setPagination(response.data.pagination || {
+        current_page: page,
+        total_pages: 1,
+        has_pre: false,
+        has_next: false
+      })
     } catch (error) {
       setError(error.message || '文章載入失敗')
     } finally {
@@ -78,7 +92,11 @@ function AdminArticles () {
       }
 
       alert('刪除成功')
-      getArticles()
+      if (articles.length === 1 && pagination.current_page > 1) {
+        getArticles(pagination.current_page - 1)
+      } else {
+        getArticles(pagination.current_page)
+      }
     } catch {
       alert('刪除失敗')
     }
@@ -103,7 +121,7 @@ function AdminArticles () {
         mode={modalMode}
         articleId={selectedArticleId}
         onClose={() => setIsModalOpen(false)}
-        onSuccess={getArticles}
+        onSuccess={() => getArticles(pagination.current_page)}
       />
 
       {loading && <p role='status'>文章載入中…</p>}
@@ -114,51 +132,81 @@ function AdminArticles () {
         (articles.length === 0 ? (
           <p>目前沒有文章。</p>
         ) : (
-          <table className='w-full border-collapse'>
-            <thead>
-              <tr className='bg-gray-100'>
-                <th className='border p-2 text-left'>文章標題</th>
-                <th className='border p-2 text-left'>作者</th>
-                <th className='border p-2 text-left'>是否公開</th>
-                <th className='border p-2 text-left'>操作</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {articles.map(article => (
-                <tr key={article.id}>
-                  <td className='border p-2'>{article.title}</td>
-                  <td className='border p-2'>{article.author}</td>
-                  <td className='border p-2'>
-                    <span
-                      className={
-                        article.isPublic ? 'text-green-500' : 'text-red-500'
-                      }
-                    >
-                      {article.isPublic ? '公開' : '未公開'}
-                    </span>
-                  </td>
-                  <td className='border p-2'>
-                    <button
-                      type='button'
-                      disabled={isModalOpen}
-                      onClick={() => handleOpenEdit(article.id)}
-                      className='bg-yellow-400 text-white px-3 py-1 rounded hover:bg-yellow-500'
-                    >
-                      編輯
-                    </button>
-                    <button
-                      type='button'
-                      onClick={() => handleDelete(article.id)}
-                      className='ml-2 rounded bg-red-500 px-3 py-1 text-white hover:bg-red-600'
-                    >
-                      刪除
-                    </button>
-                  </td>
+          <>
+            <table className='w-full border-collapse'>
+              <thead>
+                <tr className='bg-gray-100'>
+                  <th className='border p-2 text-left'>文章標題</th>
+                  <th className='border p-2 text-left'>作者</th>
+                  <th className='border p-2 text-left'>是否公開</th>
+                  <th className='border p-2 text-left'>操作</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody>
+                {articles.map(article => (
+                  <tr key={article.id}>
+                    <td className='border p-2'>{article.title}</td>
+                    <td className='border p-2'>{article.author}</td>
+                    <td className='border p-2'>
+                      <span
+                        className={
+                          article.isPublic ? 'text-green-500' : 'text-red-500'
+                        }
+                      >
+                        {article.isPublic ? '公開' : '未公開'}
+                      </span>
+                    </td>
+                    <td className='border p-2'>
+                      <button
+                        type='button'
+                        disabled={isModalOpen}
+                        onClick={() => handleOpenEdit(article.id)}
+                        className='bg-yellow-400 text-white px-3 py-1 rounded hover:bg-yellow-500'
+                      >
+                        編輯
+                      </button>
+                      <button
+                        type='button'
+                        onClick={() => handleDelete(article.id)}
+                        className='ml-2 rounded bg-red-500 px-3 py-1 text-white hover:bg-red-600'
+                      >
+                        刪除
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <nav
+              aria-label='文章列表分頁'
+              className='mt-6 flex items-center justify-center gap-4'
+            >
+              <button
+                type='button'
+                disabled={loading || !pagination.has_pre}
+                onClick={() => getArticles(pagination.current_page - 1)}
+                className='cursor-pointer rounded border px-4 py-2 hover:bg-sand disabled:cursor-not-allowed disabled:opacity-40'
+              >
+                上一頁
+              </button>
+
+              <span aria-live='polite'>
+                {loading
+                  ? '載入中…'
+                  : `第 ${pagination.current_page} 頁／共 ${pagination.total_pages} 頁`}
+              </span>
+
+              <button
+                type='button'
+                disabled={loading || !pagination.has_next}
+                onClick={() => getArticles(pagination.current_page + 1)}
+                className='cursor-pointer rounded border px-4 py-2 hover:bg-sand disabled:cursor-not-allowed disabled:opacity-40'
+              >
+                下一頁
+              </button>
+            </nav>
+          </>
         ))}
     </div>
   )

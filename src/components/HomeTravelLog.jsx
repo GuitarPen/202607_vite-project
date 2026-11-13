@@ -5,19 +5,60 @@ import './HomeTravelLog.css'
 import TextLink from './TextLink'
 
 const { VITE_API_URL, VITE_API_PATH } = import.meta.env
+const articlesApi = `${VITE_API_URL}/v2/api/${VITE_API_PATH}/articles`
 
 function HomeTravelLog () {
   const [articles, setArticles] = useState([])
 
   useEffect(() => {
-    ;(async () => {
-      // console.log(`取得文章列表:${VITE_API_URL}/v2/api/${VITE_API_PATH}/articles`)
-      const res = await axios.get(
-        `${VITE_API_URL}/v2/api/${VITE_API_PATH}/articles`
-      )
-      // console.log(res.data.articles);
-      setArticles(res.data.articles)
-    })()
+    const controller = new AbortController()
+
+    async function loadLatestArticles () {
+      try {
+        let collectedArticles = []
+        let totalApiPages = 1
+
+        for (let page = 1; page <= totalApiPages; page += 1) {
+          const response = await axios.get(articlesApi, {
+            params: { page },
+            signal: controller.signal
+          })
+
+          if (
+            response.data?.success === false ||
+            !Array.isArray(response.data?.articles)
+          ) {
+            throw new Error('文章資料格式不正確。')
+          }
+
+          collectedArticles = collectedArticles.concat(response.data.articles)
+
+          if (response.data.pagination) {
+            totalApiPages = Number(response.data.pagination.total_pages) || 1
+          }
+        }
+
+        const latestArticles = collectedArticles
+          .filter(article => article && article.id != null)
+          .sort(
+            (left, right) =>
+              Number(right.create_at || 0) - Number(left.create_at || 0)
+          )
+          .slice(0, 3)
+
+        if (!controller.signal.aborted) {
+          setArticles(latestArticles)
+        }
+      } catch {
+        if (!controller.signal.aborted) {
+          setArticles([])
+        }
+      }
+    }
+
+    loadLatestArticles()
+
+    return () => controller.abort()
   }, [])
 
   return (

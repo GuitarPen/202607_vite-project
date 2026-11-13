@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import './ArticlesDetail.css'
 
 const { VITE_API_URL, VITE_API_PATH } = import.meta.env
+const articlesApi = `${VITE_API_URL}/v2/api/${VITE_API_PATH}/articles`
 
 function ArticlesDetail () {
   const { id } = useParams()
@@ -14,7 +15,10 @@ function ArticlesDetail () {
   const [error, setError] = useState('')
   const [notFound, setNotFound] = useState(false)
   const [imageError, setImageError] = useState(false)
-  const [adjacentArticles, setAdjacentArticles] = useState({ previous: null, next: null })
+  const [adjacentArticles, setAdjacentArticles] = useState({
+    previous: null,
+    next: null
+  })
 
   useEffect(() => {
     const controller = new AbortController()
@@ -32,6 +36,7 @@ function ArticlesDetail () {
       return () => controller.abort()
     }
 
+    // 取得目前文章的內容
     async function getArticle () {
       try {
         const response = await axios.get(
@@ -60,19 +65,41 @@ function ArticlesDetail () {
       }
     }
 
+    // 取得文章清單，找出目前文章的上一篇和下一篇
     async function getAdjacentArticles () {
       try {
-        const response = await axios.get(
-          `${VITE_API_URL}/v2/api/${VITE_API_PATH}/articles`,
-          { signal: controller.signal }
+        let collectedArticles = []
+        let totalApiPages = 1
+
+        for (let page = 1; page <= totalApiPages; page += 1) {
+          const response = await axios.get(
+            articlesApi,
+            {
+              params: { page },
+              signal: controller.signal
+            }
+          )
+
+          if (
+            response.data?.success === false ||
+            !Array.isArray(response.data?.articles)
+          ) {
+            throw new Error('文章資料格式不正確。')
+          }
+
+          collectedArticles = collectedArticles.concat(response.data.articles)
+
+          if (response.data.pagination) {
+            totalApiPages = Number(response.data.pagination.total_pages) || 1
+          }
+        }
+
+        const articles = collectedArticles
+          .filter(item => item && item.id != null)
+
+        const currentIndex = articles.findIndex(
+          item => String(item.id) === String(id)
         )
-        const articles = Array.isArray(response.data?.articles)
-          ? response.data.articles
-              .filter(item => item && item.id != null)
-              .slice()
-              .sort((left, right) => Number(left.create_at || 0) - Number(right.create_at || 0))
-          : []
-        const currentIndex = articles.findIndex(item => String(item.id) === String(id))
 
         if (controller.signal.aborted || currentIndex < 0) return
 
@@ -103,23 +130,27 @@ function ArticlesDetail () {
   )
 
   const createdAt = Number(article?.create_at)
-  const createdAtDate = Number.isFinite(createdAt) && createdAt > 0
-    ? new Date(createdAt * 1000)
-    : null
+  const createdAtDate =
+    Number.isFinite(createdAt) && createdAt > 0
+      ? new Date(createdAt * 1000)
+      : null
   const hasValidDate = createdAtDate && Number.isFinite(createdAtDate.getTime())
-  const titleFromApi = typeof article?.title === 'string' ? article.title.trim() : ''
+  const titleFromApi =
+    typeof article?.title === 'string' ? article.title.trim() : ''
   const articleTitle = titleFromApi || (article ? '未命名文章' : '文章')
-  const author = typeof article?.author === 'string' ? article.author.trim() : ''
-  const description = typeof article?.description === 'string'
-    ? article.description.trim()
-    : ''
+  const author =
+    typeof article?.author === 'string' ? article.author.trim() : ''
+  const description =
+    typeof article?.description === 'string' ? article.description.trim() : ''
   const content = typeof article?.content === 'string' ? article.content : ''
   const image = typeof article?.image === 'string' ? article.image.trim() : ''
   const tags = Array.isArray(article?.tag)
     ? article.tag.filter(tag => typeof tag === 'string' && tag.trim())
     : []
   const contentParagraphs = content.trim()
-    ? content.split(/\r?\n(?:[\t ]*\r?\n)+/).filter(paragraph => paragraph.trim())
+    ? content
+        .split(/\r?\n(?:[\t ]*\r?\n)+/)
+        .filter(paragraph => paragraph.trim())
     : []
 
   return (
@@ -164,7 +195,10 @@ function ArticlesDetail () {
                 <div className='article-detail-meta'>
                   {author && <span>作者：{author}</span>}
                   {author && hasValidDate && (
-                    <span className='article-detail-meta-separator' aria-hidden='true'>
+                    <span
+                      className='article-detail-meta-separator'
+                      aria-hidden='true'
+                    >
                       ·
                     </span>
                   )}
@@ -200,7 +234,9 @@ function ArticlesDetail () {
                 <div
                   className='article-detail-cover-placeholder'
                   role='img'
-                  aria-label={image ? '封面圖片載入失敗' : '此篇文章沒有封面圖片'}
+                  aria-label={
+                    image ? '封面圖片載入失敗' : '此篇文章沒有封面圖片'
+                  }
                 >
                   <span>ROADKIT</span>
                   <span lang='en'>TRAVEL LOG</span>
@@ -233,36 +269,61 @@ function ArticlesDetail () {
                 </div>
 
                 {(adjacentArticles.previous || adjacentArticles.next) && (
-                  <nav className='article-detail-neighbors' aria-label='相鄰文章'>
+                  <nav
+                    className='article-detail-neighbors'
+                    aria-label='相鄰文章'
+                  >
                     {adjacentArticles.previous ? (
                       <Link
                         to={`/articles/${adjacentArticles.previous.id}`}
                         className='article-detail-neighbor article-detail-neighbor--previous'
-                        aria-label={`上一篇文章：${adjacentArticles.previous.title || '未命名文章'}`}
+                        aria-label={`上一篇文章：${
+                          adjacentArticles.previous.title || '未命名文章'
+                        }`}
                       >
-                        <span className='article-detail-neighbor-arrow' aria-hidden='true'>
-                          <ChevronLeft aria-hidden='true' size={18} strokeWidth={1.75} />
+                        <span
+                          className='article-detail-neighbor-arrow'
+                          aria-hidden='true'
+                        >
+                          <ChevronLeft
+                            aria-hidden='true'
+                            size={18}
+                            strokeWidth={1.75}
+                          />
                         </span>
                         <span className='article-detail-neighbor-title'>
                           {adjacentArticles.previous.title || '未命名文章'}
                         </span>
                       </Link>
-                    ) : <span aria-hidden='true' />}
+                    ) : (
+                      <span aria-hidden='true' />
+                    )}
 
                     {adjacentArticles.next ? (
                       <Link
                         to={`/articles/${adjacentArticles.next.id}`}
                         className='article-detail-neighbor article-detail-neighbor--next'
-                        aria-label={`下一篇文章：${adjacentArticles.next.title || '未命名文章'}`}
+                        aria-label={`下一篇文章：${
+                          adjacentArticles.next.title || '未命名文章'
+                        }`}
                       >
                         <span className='article-detail-neighbor-title'>
                           {adjacentArticles.next.title || '未命名文章'}
                         </span>
-                        <span className='article-detail-neighbor-arrow' aria-hidden='true'>
-                          <ChevronRight aria-hidden='true' size={18} strokeWidth={1.75} />
+                        <span
+                          className='article-detail-neighbor-arrow'
+                          aria-hidden='true'
+                        >
+                          <ChevronRight
+                            aria-hidden='true'
+                            size={18}
+                            strokeWidth={1.75}
+                          />
                         </span>
                       </Link>
-                    ) : <span aria-hidden='true' />}
+                    ) : (
+                      <span aria-hidden='true' />
+                    )}
                   </nav>
                 )}
               </footer>
