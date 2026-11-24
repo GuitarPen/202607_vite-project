@@ -1,0 +1,4 @@
+- 這是 Vite + React 專案。
+- 頁面放在 src/pages，共用元件放在 src/components，管理頁面放在 src/pages/admin。
+- 修改程式前先查看相關檔案，並沿用該區域既有的寫法。
+- 需要驗收時，依變更範圍選擇執行 npm run build 或 npm run lint，並回報實際結果。
